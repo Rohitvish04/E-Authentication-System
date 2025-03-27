@@ -150,7 +150,13 @@ app.post('/verify', async (req, res) => {
         if (verified) {
             user.verified = true;
             await user.save();
-            res.json({ message: 'Authentication successful' });
+
+            const token = jwt.sign(
+                { userId: user._id, email: user.email },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+              );
+            res.json({ message: 'Authentication successful',token });
         } else {
             // Log what the current valid token should be
             const currentToken = speakeasy.totp({

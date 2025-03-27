@@ -31,6 +31,16 @@ function Regester() {
     }
   };
 
+  const handleRegenerateQR = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/regenerate-secret', { email });
+      setQrCodeUrl(response.data.qrCodeUrl);
+      setMessage('New QR code generated');
+    } catch (error) {
+      setError('Failed to regenerate QR code');
+    }
+  };
+
   return (
     <Container
       maxWidth="lg"
@@ -79,6 +89,14 @@ function Regester() {
         <Button type="submit" variant="outlined" color="primary">
           Register
         </Button>
+        {/* // Add this button */}
+<Button 
+  variant="outlined" 
+  onClick={handleRegenerateQR}
+  sx={{ mt: 2 }}
+>
+  Regenerate QR Code
+</Button>
       </Box>
       
       {error && (

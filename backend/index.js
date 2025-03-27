@@ -75,12 +75,15 @@ app.post('/register', async (req, res) => {
 
         // Generate secret key
         const secret = speakeasy.generateSecret({
-            name: `E-Auth:${email}`
-        });
+            length: 20, // 160-bit secret
+            name: `rohitvvishwakarma400gmail.com:${email}`, // Shows in authenticator apps
+            issuer: 'E-Auth-App' // Important for some authenticators
+          });
         
-        // Generate QR code
-        const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+        const otpauthUrl = secret.otpauth_url; // This already includes proper formatting
         
+       // Generate QR code
+        const qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
         // Save user to MongoDB
         const user = new User({
             email,

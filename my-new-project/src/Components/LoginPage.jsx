@@ -20,6 +20,8 @@ function LoginPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [resendDisabled, setResendDisabled] = useState(false);
+const [resendTimeout, setResendTimeout] = useState(30);
 
   const handleSendOtp = async () => {
     setLoading(true);
@@ -91,6 +93,22 @@ function LoginPage() {
     }
 };
 
+const handleResendOtp = async () => {
+  setResendDisabled(true);
+  let countdown = 30;
+  
+  const timer = setInterval(() => {
+    countdown--;
+    setResendTimeout(countdown);
+    if (countdown <= 0) {
+      clearInterval(timer);
+      setResendDisabled(false);
+    }
+  }, 1000);
+
+  await handleSendOtp(); // Reuse your existing OTP send function
+};
+
 
 
   return (
@@ -150,6 +168,13 @@ function LoginPage() {
             "Send OTP"
           )}
         </Button>
+        {/* // Add this button near the OTP input */}
+<Button 
+  onClick={handleResendOtp}
+  disabled={resendDisabled || loading}
+>
+  {resendDisabled ? `Resend in ${resendTimeout}s` : 'Resend OTP'}
+</Button>
       </Box>
 
       {/* OTP Input (only shown after OTP is sent) */}

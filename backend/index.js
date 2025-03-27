@@ -3,6 +3,7 @@ const qrcode = require('qrcode');
 const speakeasy = require('speakeasy');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken')
 const cors = require('cors');
 require('dotenv').config();
 
@@ -33,6 +34,14 @@ mongoose.connect(mongoURI, {
     console.error('MongoDB connection error:', err);
 });
 
+// Rate Limiting 
+const rateLimit = require('express-rate-limit');
+
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 OTP requests per windowMs
+  message: 'Too many OTP requests, please try again later'
+});
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -88,7 +97,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/send-otp', async (req, res) => {
+app.post('/send-otp', otpLimiter,async (req, res) => {
     const { email } = req.body;
     
     try {
